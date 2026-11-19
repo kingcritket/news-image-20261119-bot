@@ -1,27 +1,28 @@
-"""news-image-20261119 entry: copy the bundled image to the output directory.
+"""news-image-20261119 entry: place the bundled image at the output path.
 
-Standard library only, no network. Deterministic: the output bytes are
-exactly the bytes of entry.png shipped beside this script. The image was
-built by build_entry.py from three AI-generated scene photos (assets/)
-with all text drawn by PIL in Liberation Sans.
+The program is deliberately boring: it copies entry.png, byte for byte,
+into MAKEFUN_OUTPUT_DIR (or /output when the variable is unset). No
+network, no randomness, no re-encoding, so two runs always write
+identical bytes. The picture itself is produced by build_entry.py from
+the scene photos in assets/; this file only delivers it.
 """
 
 import os
-import shutil
 import sys
+from pathlib import Path
 
 
 def main() -> int:
-    here = os.path.dirname(os.path.abspath(__file__))
-    source = os.path.join(here, "entry.png")
-    if not os.path.isfile(source):
-        print("entry.png not found beside main.py", file=sys.stderr)
+    root = Path(__file__).resolve().parent
+    source = root / "entry.png"
+    if not source.is_file():
+        print("entry.png is missing next to main.py", file=sys.stderr)
         return 1
-    out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
-    os.makedirs(out_dir, exist_ok=True)
-    shutil.copyfile(source, os.path.join(out_dir, "entry.png"))
+    destination = Path(os.environ.get("MAKEFUN_OUTPUT_DIR", "/output"))
+    destination.mkdir(parents=True, exist_ok=True)
+    (destination / "entry.png").write_bytes(source.read_bytes())
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())
