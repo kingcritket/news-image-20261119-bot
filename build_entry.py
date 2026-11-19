@@ -7,14 +7,23 @@ the image is drawn here in Liberation Sans; the photos carry no text.
 
 Stories, all verified against reporting of 19 November 2026:
   1. Trump, Xi & Putin meet in Shenzhen - first-ever trilateral, APEC
-     (Yonhap, 19 Nov; Reuters, 18 Nov; China Foreign Ministry).
+     (Reuters, 19 Nov; White House; China Foreign Ministry). Nuclear
+     arms top the agenda; no deal expected.
   2. Iran hits a U.S. base in Kuwait - drones target the Patriot site at
-     Ali Al Salem; Bahrain intercepts another attack (Reuters, 19 Nov).
+     Ali Al Salem; Bahrain intercepts another attack (Reuters/BBC, 19 Nov).
   3. GTA VI rolls out worldwide - midnight local launches from New
-     Zealand; 17m+ copies, $1.65bn pre-release sales (Reuters, 19 Nov).
-Strip: Jeffries picked as Speaker nominee 251-11; Cyclone Akvan nears
-India (landfall due 20 Nov); NASA briefs on Voyager 1's one-light-day
-milestone today; India and Japan hold 2+2 defence talks in Tokyo.
+     Zealand; Metacritic 99; ~17m pre-orders, $1.65bn (Sensor Tower
+     estimate, 18 Nov - NOT official Take-Two figures).
+Strip (all first reported 19 Nov, all verified): Anthropic prices a
+record $81.3bn IPO, largest ever, trading starts today on Nasdaq
+(Reuters, 19 Nov); Crimea Bridge hit a third time this week, traffic
+halted hours before Putin's Shenzhen talks (Reuters, 19 Nov); Van
+Gogh's Blossoming Chestnut Trees sells for a record $190.4m at
+Sotheby's (19 Nov); Cyclone Akvan nears India, landfall due Nov 20
+(IMD); India and Japan hold 2+2 defence talks in Tokyo (PIB/PTI).
+Dropped from v1: Jeffries Speaker nomination (that vote was 18 Nov,
+not 19 Nov) and the Voyager 1 item (milestone was 18 Nov; no verified
+NASA briefing today).
 """
 
 import os
@@ -111,20 +120,43 @@ def ring_icon(draw, cx, cy, r, colour, kind):
         draw.ellipse([cx - r + 8, cy - r + 8, cx + r - 8, cy + r - 8],
                      outline=colour, width=4)
         draw.line([cx, cy - r + 8, cx, cy + r - 8], fill=colour, width=3)
+    elif kind == "chart":
+        # three ascending bars
+        draw.line([cx - 12, cy + 12, cx + 12, cy + 12],
+                  fill=colour, width=3)
+        for bx, bh in ((-11, 10), (-2, 18), (7, 26)):
+            draw.rectangle([cx + bx, cy + 12 - bh, cx + bx + 6, cy + 12],
+                           fill=colour)
+    elif kind == "bridge":
+        # deck line + arc span
+        draw.line([cx - r + 6, cy + 8, cx + r - 6, cy + 8],
+                  fill=colour, width=4)
+        draw.arc([cx - r + 8, cy - r + 6, cx + r - 8, cy + 10],
+                 start=180, end=360, fill=colour, width=4)
+        draw.line([cx - r + 10, cy - 2, cx - r + 10, cy + 8],
+                  fill=colour, width=3)
+        draw.line([cx + r - 10, cy - 2, cx + r - 10, cy + 8],
+                  fill=colour, width=3)
+    elif kind == "frame":
+        # picture frame: outer rect + inner mat line
+        draw.rectangle([cx - r + 9, cy - r + 11, cx + r - 9, cy + r - 11],
+                       outline=colour, width=3)
+        draw.rectangle([cx - r + 15, cy - r + 16, cx + r - 15, cy + r - 16],
+                       outline=colour, width=2)
 
 
 def strip_item(draw, x, y, w, icon, colour, kind, head, sub):
     ring_icon(draw, x + 26, y + 26, 22, colour, kind)
     tx = x + 62
     max_w = w - 62 - 8
-    hf = fit_font(draw, head, FONT_BOLD, 25, max_w)
+    hf = fit_font(draw, head, FONT_BOLD, 23, max_w)
     draw.text((tx, y + 2), head, font=hf, fill=INK)
-    sf = font(FONT_REG, 17)
+    sf = font(FONT_REG, 16)
     lines = wrap(draw, sub, sf, max_w)
     ty = y + 2 + hf.size + 6
     for line in lines:
         draw.text((tx, ty), line, font=sf, fill=SUB_INK)
-        ty += 21
+        ty += 20
     return ty
 
 
@@ -157,7 +189,7 @@ def main():
     # Top row: Shenzhen trilateral | Iran hits Kuwait base.
     photo_panel(canvas, draw, summit, (24, 116, 480, 420),
                 "TRUMP, XI & PUTIN MEET",
-                "FIRST-EVER TRILATERAL IN SHENZHEN AT THE APEC SUMMIT")
+                "FIRST-EVER TRILATERAL IN SHENZHEN; NUCLEAR ARMS TOP THE AGENDA")
     photo_panel(canvas, draw, kuwait, (520, 116, 480, 420),
                 "IRAN HITS U.S. BASE IN KUWAIT",
                 "DRONES TARGET PATRIOT SITE AT ALI AL SALEM; BAHRAIN INTERCEPTS ANOTHER ATTACK")
@@ -165,7 +197,7 @@ def main():
     # Bottom-left: GTA VI rollout.
     photo_panel(canvas, draw, vice, (24, 552, 480, 420),
                 "GTA VI ROLLS OUT WORLDWIDE",
-                "13-YEAR WAIT ENDS \u2014 17M COPIES, $1.65BN ALREADY SOLD")
+                "13-YEAR WAIT ENDS \u2014 99 ON METACRITIC; 17M PRE-ORDERS (EST.)")
 
     # Bottom-right: also today.
     x, y, w, h = 520, 552, 480, 420
@@ -176,12 +208,14 @@ def main():
     draw.text((x + 16, y + 12), "ALSO TODAY", font=hf, fill=WHITE)
 
     items = [
-        ("capitol", NAVY, "JEFFRIES PICKED FOR SPEAKER",
-         "DEMOCRATS VOTE 251\u201311; FIRST BLACK SPEAKER IN LINE"),
+        ("chart", NAVY, "ANTHROPIC'S RECORD $81.3BN IPO",
+         "DEBUTS ON NASDAQ TODAY; VALUED ~$1.5TN"),
+        ("bridge", (150, 40, 40), "CRIMEA BRIDGE HIT A THIRD TIME",
+         "TRAFFIC HALTED HOURS BEFORE SHENZHEN TALKS"),
+        ("frame", (120, 90, 20), "VAN GOGH SELLS FOR RECORD $190.4M",
+         "BLOSSOMING CHESTNUT TREES SETS ARTIST RECORD"),
         ("cyclone", (150, 40, 40), "CYCLONE AKVAN NEARS INDIA",
          "LANDFALL DUE NOV 20; RED ALERTS, SCHOOLS SHUT"),
-        ("planet", (20, 120, 90), "VOYAGER 1: NASA BRIEFING TODAY",
-         "ONE LIGHT-DAY OUT; A SIGNAL TAKES 24 HOURS"),
         ("globe", NAVY, "INDIA & JAPAN HOLD 2+2 TALKS",
          "DEFENCE MINISTERS MEET IN TOKYO"),
     ]
@@ -189,9 +223,9 @@ def main():
     for i, (kind, colour, head, sub) in enumerate(items):
         end = strip_item(draw, x + 12, iy, w - 24, None, colour, kind,
                          head, sub)
-        iy = end + 18
+        iy = end + 10
         if i < len(items) - 1:
-            draw.line([x + 16, iy - 9, x + w - 16, iy - 9],
+            draw.line([x + 16, iy - 5, x + w - 16, iy - 5],
                       fill=(220, 218, 210), width=2)
 
     # Footer.
